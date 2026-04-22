@@ -30,10 +30,12 @@ function VariantB() {
     }}>
       <ModalHeader title="Coast FI Calculator" onClose={() => {}} />
 
-      <div style={{
-        flex: 1, overflowY: 'auto', overflowX: 'hidden',
-        padding: '0 18px 120px',
-      }}>
+      <div
+        onWheel={(e) => e.stopPropagation()}
+        style={{
+          flex: 1, overflowY: 'auto', overflowX: 'hidden',
+          padding: '0 18px 120px',
+        }}>
         <HeroProjection
           coastFi={coastFi}
           invested={invested}
