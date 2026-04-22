@@ -45,11 +45,13 @@ if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
     '.dc-grip:active{cursor:grabbing}',
     '.dc-labeltext{cursor:pointer;border-radius:4px;padding:3px 6px;display:flex;align-items:center;transition:background .12s}',
     '.dc-labeltext:hover{background:rgba(0,0,0,.05)}',
-    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:5px;z-index:2;opacity:0;transition:opacity .12s,background .12s;',
-    '  width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;',
-    '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center}',
-    '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}',
-    '[data-dc-slot]:hover .dc-expand{opacity:1}',
+    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:8px;z-index:2;transition:background .12s,box-shadow .12s;',
+    '  height:30px;padding:0 12px;border-radius:9999px;border:1.5px solid rgba(60,50,40,0.22);cursor:pointer;',
+    '  background:rgba(255,255,255,0.82);color:rgba(40,30,20,0.75);backdrop-filter:blur(6px);',
+    '  display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;',
+    '  font-family:-apple-system,system-ui,sans-serif;white-space:nowrap;',
+    '  box-shadow:0 1px 4px rgba(0,0,0,0.10);}',
+    '.dc-expand:hover{background:#fff;color:#1a1209;box-shadow:0 2px 8px rgba(0,0,0,0.15);}',
   ].join('\n');
   document.head.appendChild(s);
 }
@@ -449,8 +451,9 @@ function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorde
             style={{ fontSize: 15, fontWeight: 500, color: DC.label, lineHeight: 1 }} />
         </div>
       </div>
-      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Focus">
+      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Open full experience">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M7 1h4v4M5 11H1V7M11 1L7.5 4.5M1 11l3.5-3.5"/></svg>
+        Open full experience
       </button>
       <div className="dc-card"
         style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
