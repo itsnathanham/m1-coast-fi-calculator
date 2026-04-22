@@ -74,8 +74,8 @@ function VariantB() {
           <Assumptions growth={growth} setGrowth={setGrowth} withdrawal={4} />
         </div>
 
-        {/* Pie-first CTA (from A) with adaptive framing */}
-        <PieCTA
+        {/* AI Advisor primary CTA + self-direct disclosure */}
+        <AICta
           pastCoast={pastCoast}
           farBehind={farBehind}
           years={years}
@@ -313,93 +313,188 @@ function MilestoneBand({ invested, coastFi, progress, pastCoast }) {
   );
 }
 
-// ─── Pie-first CTA (adaptive) ─────────────────────────────────
-// • pastCoast → celebratory, "optimize" framing
-// • farBehind → small-steps, gentle encouragement ("start with $50/mo")
-// • default  → recommended Coast FI Pie for their timeline
-function PieCTA({ pastCoast, farBehind, years, progress }) {
-  let headline, body, pieLabel, returnLabel, microCopy;
+// ─── AI Advisor icon ──────────────────────────────────────────
+const AIAdvisorIcon = (s = 24) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" stroke="url(#aiGrad)" strokeWidth="1.5"/>
+    <circle cx="12" cy="12" r="4" fill="url(#aiGrad)" opacity="0.9"/>
+    <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M16.9 16.9l1.4 1.4M5.6 18.4l1.4-1.4M16.9 7.1l1.4-1.4"
+      stroke="url(#aiGrad)" strokeWidth="1.3" strokeLinecap="round"/>
+    <defs>
+      <linearGradient id="aiGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#A78BFA"/>
+        <stop offset="100%" stopColor="#6DCFF6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
+// ─── AI Advisor CTA (primary) + Pie self-direct (collapsed) ───
+// Primary: M1 AI Advisor card, copy adapts to Coast FI state.
+// Secondary: "Prefer to self-direct?" disclosure expands inline
+//   to show the Pie card, keeping it available but out of the way.
+function AICta({ pastCoast, farBehind, years, progress }) {
+  const [pieOpen, setPieOpen] = React.useState(false);
+
+  let aiHeadline, aiBody;
   if (pastCoast) {
-    headline = 'Optimize for tax-advantaged growth';
-    body = 'Explore a Roth IRA conversion Pie designed for the coasting phase — or a Fat FI acceleration Pie.';
-    pieLabel = 'Coasting Pies';
+    aiHeadline = "You've hit Coast FI. Now let's optimize it.";
+    aiBody = 'Your money is working — M1 AI Advisor can help you map out Roth conversions, tax strategy, and your path to Fat FI.';
+  } else if (farBehind) {
+    aiHeadline = 'Start with a plan that fits where you are.';
+    aiBody = "You don't need to close the gap all at once. M1 AI Advisor will build a step-by-step plan around your life, not just your number.";
+  } else {
+    const pct = Math.round(progress * 100);
+    aiHeadline = `You're ${pct}% there. Let's close the gap.`;
+    aiBody = 'M1 AI Advisor can turn your Coast FI number into a concrete action plan — contributions, timeline, and the right accounts.';
+  }
+
+  // Pie card content (same adaptive logic as before)
+  let pieHeadline, pieBody, returnLabel, microCopy;
+  if (pastCoast) {
+    pieHeadline = 'Optimize for tax-advantaged growth';
+    pieBody = 'Explore a Roth IRA conversion Pie designed for the coasting phase — or a Fat FI acceleration Pie.';
     returnLabel = '6.8%';
     microCopy = null;
   } else if (farBehind) {
-    headline = 'Start small. Start today.';
-    body = "You're building the habit, not closing the gap overnight. Even $50 a month compounded for decades is meaningful.";
-    pieLabel = `Starter Retirement Pie`;
+    pieHeadline = 'Start small. Start today.';
+    pieBody = "You're building the habit, not closing the gap overnight. Even $50 a month compounded for decades is meaningful.";
     returnLabel = '7.2%';
     microCopy = 'Auto-invest as little as $50/mo';
   } else {
-    headline = `A ${years}-year Coast FI Pie`;
-    body = `Long-horizon and diversified. Built to match your ${years}-year timeline with 80/20 equity/bond weighting.`;
-    pieLabel = `Coast FI · ${years}yr`;
+    pieHeadline = `A ${years}-year Coast FI Pie`;
+    pieBody = `Long-horizon and diversified. Built to match your ${years}-year timeline with 80/20 equity/bond weighting.`;
     returnLabel = '7.2%';
     microCopy = null;
   }
 
   return (
     <div style={{ marginTop: 32 }}>
-      <SectionLabel>Suggested for you</SectionLabel>
+      <SectionLabel>Your next step</SectionLabel>
+
+      {/* ── AI Advisor card (primary) ── */}
       <Card style={{
-        background: `linear-gradient(140deg, ${M1.card} 0%, rgba(109,207,246,0.08) 100%)`,
-        border: `1px solid ${M1.tealDim}`,
+        background: `linear-gradient(140deg, #130d2a 0%, #0e1a30 60%, rgba(109,207,246,0.06) 100%)`,
+        border: '1px solid rgba(167,139,250,0.22)',
+        position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+        {/* subtle shimmer layer */}
+        <div style={{
+          position: 'absolute', inset: 0, borderRadius: M1.r.lg,
+          background: 'radial-gradient(ellipse at 80% 0%, rgba(167,139,250,0.10) 0%, transparent 60%)',
+          pointerEvents: 'none',
+        }}/>
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative' }}>
           <div style={{
-            width: 48, height: 48, borderRadius: M1.r.md,
-            background: M1.tealDim,
+            width: 48, height: 48, borderRadius: M1.r.md, flexShrink: 0,
+            background: 'linear-gradient(135deg, rgba(167,139,250,0.22) 0%, rgba(109,207,246,0.14) 100%)',
+            border: '1px solid rgba(167,139,250,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>{Icon.pieIcon(26, M1.teal)}</div>
+          }}>{AIAdvisorIcon(26)}</div>
+
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.25 }}>
-              {headline}
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontSize: 10, fontWeight: 600, letterSpacing: '0.06em',
+              color: '#A78BFA', marginBottom: 7,
+              background: 'rgba(167,139,250,0.12)',
+              padding: '3px 8px', borderRadius: 9999,
+            }}>
+              {Icon.sparkle(10, '#A78BFA')} M1 AI ADVISOR
             </div>
-            <div style={{ fontSize: 13, color: M1.textMuted, marginTop: 6, lineHeight: 1.5, textWrap: 'pretty' }}>
-              {body}
+            <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.3 }}>
+              {aiHeadline}
             </div>
-            {microCopy && (
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                marginTop: 10, fontSize: 12, fontWeight: 500,
-                color: M1.teal, background: M1.tealDim,
-                padding: '4px 10px', borderRadius: 9999,
-              }}>
-                {microCopy}
-              </div>
-            )}
+            <div style={{ fontSize: 13, color: M1.textMuted, marginTop: 7, lineHeight: 1.55, textWrap: 'pretty' }}>
+              {aiBody}
+            </div>
           </div>
         </div>
 
-        <div style={{
-          marginTop: 18, paddingTop: 18, borderTop: `1px solid ${M1.divider}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div>
-            <div style={{ fontSize: 11, color: M1.textMuted, letterSpacing: '0.02em' }}>
-              EXPECTED RETURN
-            </div>
-            <div style={{ fontSize: 17, fontWeight: 600, marginTop: 2, color: M1.green }}>
-              {returnLabel}<span style={{ color: M1.textMuted, fontSize: 13, fontWeight: 400 }}> / yr</span>
-            </div>
-          </div>
-          <SecondaryPill>
-            Explore Pie {Icon.chevronRight(14, M1.teal)}
-          </SecondaryPill>
+        <div style={{ marginTop: 18, position: 'relative' }}>
+          <PrimaryPill style={{
+            background: 'linear-gradient(90deg, #7C3AED 0%, #2563EB 100%)',
+            color: '#fff',
+          }}>
+            {AIAdvisorIcon(18)} Chat with M1 AI Advisor
+          </PrimaryPill>
         </div>
       </Card>
 
+      {/* ── Self-direct disclosure (secondary) ── */}
+      <div style={{ marginTop: 4 }}>
+        <button
+          onClick={() => setPieOpen(o => !o)}
+          style={{
+            width: '100%', padding: '13px 4px',
+            background: 'transparent', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            cursor: 'pointer', fontFamily: M1.font,
+          }}>
+          <span style={{ fontSize: 13, color: M1.textDim, fontWeight: 400 }}>
+            Prefer to self-direct?
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: M1.textDim, fontSize: 13 }}>
+            Choose a Pie
+            <span style={{ transform: pieOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s', display: 'flex' }}>
+              {Icon.chevronDown(14, M1.textDim)}
+            </span>
+          </span>
+        </button>
+
+        {pieOpen && (
+          <Card style={{
+            background: `linear-gradient(140deg, ${M1.card} 0%, rgba(109,207,246,0.06) 100%)`,
+            border: `1px solid ${M1.divider}`,
+            marginBottom: 4,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: M1.r.md, flexShrink: 0,
+                background: M1.tealDim,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>{Icon.pieIcon(22, M1.teal)}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.25 }}>
+                  {pieHeadline}
+                </div>
+                <div style={{ fontSize: 12, color: M1.textMuted, marginTop: 5, lineHeight: 1.5, textWrap: 'pretty' }}>
+                  {pieBody}
+                </div>
+                {microCopy && (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    marginTop: 8, fontSize: 11, fontWeight: 500,
+                    color: M1.teal, background: M1.tealDim,
+                    padding: '3px 9px', borderRadius: 9999,
+                  }}>{microCopy}</div>
+                )}
+              </div>
+            </div>
+            <div style={{
+              marginTop: 14, paddingTop: 14, borderTop: `1px solid ${M1.divider}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ fontSize: 13, color: M1.textMuted }}>
+                Est. return <span style={{ color: M1.green, fontWeight: 600 }}>{returnLabel}/yr</span>
+              </div>
+              <SecondaryPill style={{ height: 36, fontSize: 13 }}>
+                Explore Pie {Icon.chevronRight(13, M1.teal)}
+              </SecondaryPill>
+            </div>
+          </Card>
+        )}
+      </div>
+
       <button style={{
-        width: '100%', marginTop: 14, padding: 14,
+        width: '100%', marginTop: 6, padding: 12,
         background: 'transparent', border: 'none',
-        color: M1.teal, fontSize: 14, fontWeight: 500,
+        color: M1.teal, fontSize: 13, fontWeight: 500,
         fontFamily: M1.font, cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}>
-        {Icon.share(16)} Share your Coast FI number
+        {Icon.share(15)} Share your Coast FI number
       </button>
     </div>
   );
